@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Users{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Manage Users</h2>
+    <span class="text-muted">{{ users|length }} users total</span>
+</div>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Registered</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for u in users %}
+                <tr>
+                    <td class="align-middle">
+                        <strong>{{ u.username }}</strong>
+                        {% if u == user %}<span class="badge bg-info">You</span>{% endif %}
+                    </td>
+                    <td class="align-middle">{{ u.email }}</td>
+                    <form method="post" action="{% url 'user_role_update' u.pk %}">
+                        {% csrf_token %}
+                        <td class="align-middle">
+                            <select name="role" class="form-select form-select-sm" style="width: auto;" {% if u == user %}disabled{% endif %}>
+                                {% for value, label in role_choices %}
+                                <option value="{{ value }}" {% if u.role == value %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                        <td class="align-middle text-muted">{{ u.date_joined|date:"d M Y" }}</td>
+                        <td class="align-middle">
+                            {% if u != user %}
+                            <button type="submit" class="btn btn-sm btn-outline-primary">Save</button>
+                            {% endif %}
+                        </td>
+                    </form>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

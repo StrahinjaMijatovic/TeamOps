@@ -126,9 +126,9 @@
             <ul class="list-group list-group-flush small" style="max-height: 600px; overflow-y: auto;">
                 {% for log in audit_logs %}
                 <li class="list-group-item">
-                    <strong>{{ log.user.username }}</strong>
+                    <strong>{% if log.user %}{{ log.user.username }}{% else %}System{% endif %}</strong>
                     <span class="text-muted">{{ log.get_action_display|lower }}</span>
-                    {{ log.content_object.title|default:log.content_object }}
+                    {% if log.content_object %}{{ log.content_object.title|default:log.content_object }}{% else %}<em>deleted object</em>{% endif %}
                     <br>
                     <span class="text-muted text-xs">{{ log.timestamp|timesince }} ago</span>
                 </li>

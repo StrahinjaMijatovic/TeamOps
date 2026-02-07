@@ -10,7 +10,7 @@ from .models import Task
 from .forms import TaskForm
 from projects.models import Project, Board, Column
 
-class TaskCreateView(LoginRequiredMixin, CreateView):
+class TaskCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     model = Task
     form_class = TaskForm
     template_name = 'tasks/task_form.html'
@@ -18,6 +18,9 @@ class TaskCreateView(LoginRequiredMixin, CreateView):
     def dispatch(self, request, *args, **kwargs):
         self.project = get_object_or_404(Project, pk=self.kwargs['project_id'])
         return super().dispatch(request, *args, **kwargs)
+
+    def test_func(self):
+        return self.request.user == self.project.owner or self.request.user in self.project.members.all()
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -36,10 +39,14 @@ class TaskCreateView(LoginRequiredMixin, CreateView):
     def get_success_url(self):
         return reverse('project_detail', kwargs={'pk': self.project.pk})
 
-class TaskUpdateView(LoginRequiredMixin, UpdateView):
+class TaskUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Task
     form_class = TaskForm
     template_name = 'tasks/task_form.html'
+
+    def test_func(self):
+        task = self.get_object()
+        return self.request.user == task.project.owner or self.request.user in task.project.members.all()
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
