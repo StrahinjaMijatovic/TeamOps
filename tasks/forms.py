@@ -1,5 +1,10 @@
 from django import forms
+from django.db.models import Q
+from django.conf import settings
+from django.contrib.auth import get_user_model
 from .models import Task
+
+User = get_user_model()
 
 class TaskForm(forms.ModelForm):
     class Meta:
@@ -14,5 +19,7 @@ class TaskForm(forms.ModelForm):
         self.project = kwargs.pop('project', None)
         super().__init__(*args, **kwargs)
         if self.project:
-            # Filter assignees to only project members
-            self.fields['assignee'].queryset = self.project.members.all()
+            # Filter assignees to project members + owner
+            self.fields['assignee'].queryset = User.objects.filter(
+                Q(pk__in=self.project.members.all()) | Q(pk=self.project.owner.pk)
+            )

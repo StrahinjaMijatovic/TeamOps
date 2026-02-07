@@ -23,6 +23,21 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
         form.instance.owner = self.request.user
         return super().form_valid(form)
 
+class ProjectUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = Project
+    fields = ['name', 'description', 'status']
+    template_name = 'projects/project_form.html'
+
+    def test_func(self):
+        return self.request.user == self.get_object().owner
+
+    def get_success_url(self):
+        return reverse_lazy('project_detail', kwargs={'pk': self.object.pk})
+
+from django.contrib.contenttypes.models import ContentType
+from tasks.models import Task
+from audit.models import AuditLog
+
 class ProjectDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     model = Project
     template_name = 'projects/project_detail.html'
@@ -31,3 +46,42 @@ class ProjectDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     def test_func(self):
         project = self.get_object()
         return self.request.user == project.owner or self.request.user in project.members.all()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        project = self.object
+        
+        # Search & Filters
+        query = self.request.GET.get('q')
+        assignee_id = self.request.GET.get('assignee')
+        
+        tasks = Task.objects.filter(project=project)
+        
+        if query:
+            tasks = tasks.filter(Q(title__icontains=query) | Q(description__icontains=query))
+        
+        if assignee_id:
+            tasks = tasks.filter(assignee_id=assignee_id)
+            
+        # Organize filtered tasks by column for display
+        # We need to map columns to their filtered tasks dynamically
+        columns_with_tasks = []
+        for column in project.board.columns.all():
+            columns_with_tasks.append({
+                'column': column,
+                'tasks': tasks.filter(column=column)
+            })
+        context['columns_with_tasks'] = columns_with_tasks
+        
+        # Audit Log
+        # Get logs for Project
+        project_ct = ContentType.objects.get_for_model(Project)
+        task_ct = ContentType.objects.get_for_model(Task)
+        
+        logs = AuditLog.objects.filter(
+            Q(content_type=project_ct, object_id=project.id) |
+            Q(content_type=task_ct, object_id__in=tasks.values_list('id', flat=True))
+        ).select_related('user', 'content_type').order_by('-timestamp')[:20]
+        
+        context['audit_logs'] = logs
+        return context
