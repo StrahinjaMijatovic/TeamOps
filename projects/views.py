@@ -1,4 +1,4 @@
-from django.views.generic import ListView, CreateView, DetailView, UpdateView
+from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse_lazy
 from django.db.models import Q
@@ -33,6 +33,14 @@ class ProjectUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 
     def get_success_url(self):
         return reverse_lazy('project_detail', kwargs={'pk': self.object.pk})
+
+class ProjectDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = Project
+    template_name = 'projects/project_confirm_delete.html'
+    success_url = reverse_lazy('project_list')
+
+    def test_func(self):
+        return self.request.user == self.get_object().owner
 
 from django.contrib.contenttypes.models import ContentType
 from tasks.models import Task

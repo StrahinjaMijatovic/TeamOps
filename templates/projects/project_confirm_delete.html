@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Project{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card border-danger">
+            <div class="card-body">
+                <h3 class="card-title text-danger mb-4">Delete Project</h3>
+                <p>Are you sure you want to delete <strong>{{ object.name }} ({{ object.key }})</strong>?</p>
+                <p class="text-muted">This will permanently delete the project, its board, all columns, and all tasks.</p>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-danger">Yes, Delete</button>
+                        <a href="{% url 'project_detail' object.pk %}" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
