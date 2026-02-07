@@ -9,7 +9,7 @@
         <a href="{% url 'register' %}" class="btn btn-primary btn-lg" type="button">Get Started</a>
         {% else %}
         <p>You are logged in as <strong>{{ user.username }}</strong> ({{ user.role }})</p>
-        <a href="#" class="btn btn-success btn-lg">Go to Projects</a>
+        <a href="{% url 'project_list' %}" class="btn btn-success btn-lg">Go to Projects</a>
         {% endif %}
     </div>
 </div>

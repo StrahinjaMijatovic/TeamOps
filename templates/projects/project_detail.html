@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ project.name }}{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'project_list' %}">Projects</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ project.name }}</li>
+        </ol>
+    </nav>
+
+    <div class="d-flex justify-content-between align-items-start">
+        <div>
+            <h1>{{ project.name }} <span class="badge bg-secondary fs-6">{{ project.key }}</span></h1>
+            <p class="lead">{{ project.description }}</p>
+        </div>
+        {% if user == project.owner %}
+        <div>
+            <button class="btn btn-outline-secondary btn-sm">Edit Project</button>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row">
+    <!-- Board Columns Placeholder -->
+    <div class="col-12">
+        <div class="d-flex flex-nowrap overflow-auto pb-3 gap-3">
+            {% for column in project.board.columns.all %}
+            <div class="card" style="min-width: 300px;">
+                <div class="card-header fw-bold">
+                    {{ column.name }}
+                </div>
+                <div class="card-body bg-light" style="min-height: 400px;">
+                    <!-- Tasks will go here later -->
+                    <p class="text-muted text-center mt-5">No tasks yet</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

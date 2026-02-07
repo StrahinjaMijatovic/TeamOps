@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title %}My Projects{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>My Projects</h2>
+    <a href="{% url 'project_create' %}" class="btn btn-primary">Create New Project</a>
+</div>
+
+<div class="row">
+    {% for project in projects %}
+    <div class="col-md-4 mb-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">{{ project.name }} <small class="text-muted">({{ project.key }})</small></h5>
+                <p class="card-text text-truncate">{{ project.description }}</p>
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="badge bg-secondary">{{ project.get_status_display }}</span>
+                    <a href="{% url 'project_detail' project.pk %}" class="btn btn-outline-primary btn-sm">View
+                        Board</a>
+                </div>
+            </div>
+            <div class="card-footer text-muted">
+                Owner: {{ project.owner.username }}
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <p class="text-center">No projects found. Create one to get started!</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
