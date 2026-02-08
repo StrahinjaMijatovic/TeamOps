@@ -17,3 +17,11 @@ class User(AbstractUser):
     @property
     def is_admin(self):
         return self.role == self.Role.ADMIN
+
+    @property
+    def is_viewer(self):
+        return self.role == self.Role.VIEWER
+
+    @property
+    def can_edit(self):
+        return self.role in (self.Role.ADMIN, self.Role.TEAM_MEMBER)

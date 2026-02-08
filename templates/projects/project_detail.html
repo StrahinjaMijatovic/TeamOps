@@ -18,10 +18,13 @@
         </div>
         <div>
             {% if user == project.owner %}
+            <a href="{% url 'project_members' project.pk %}" class="btn btn-outline-primary btn-sm">Members</a>
             <a href="{% url 'project_update' project.pk %}" class="btn btn-outline-secondary btn-sm">Edit Project</a>
             <a href="{% url 'project_delete' project.pk %}" class="btn btn-outline-danger btn-sm">Delete</a>
             {% endif %}
+            {% if user.can_edit %}
             <a href="{% url 'task_create' project.pk %}" class="btn btn-primary btn-sm">+ Add Task</a>
+            {% endif %}
         </div>
     </div>
 
@@ -72,7 +75,7 @@
                         <div class="card mb-2 shadow-sm">
                             <div class="card-body p-3">
                                 <h6 class="card-title fw-bold mb-1">
-                                    <a href="{% url 'task_update' task.pk %}" class="text-decoration-none text-dark">{{ task.title }}</a>
+                                    {% if user.can_edit %}<a href="{% url 'task_update' task.pk %}" class="text-decoration-none text-dark">{{ task.title }}</a>{% else %}{{ task.title }}{% endif %}
                                 </h6>
                                 <div class="mb-2">
                                     {% for label in task.labels.all %}
@@ -89,6 +92,7 @@
                                     {% endif %}
                                 </div>
 
+                                {% if user.can_edit %}
                                 <form method="post" action="{% url 'task_move' task.pk %}" class="mt-2">
                                     {% csrf_token %}
                                     <select name="column_id" class="form-select form-select-sm"
@@ -101,6 +105,7 @@
                                         {% endfor %}
                                     </select>
                                 </form>
+                                {% endif %}
                             </div>
                         </div>
                         {% empty %}

@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block title %}Members - {{ project.name }}{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'project_list' %}">Projects</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'project_detail' project.pk %}">{{ project.name }}</a></li>
+        <li class="breadcrumb-item active">Members</li>
+    </ol>
+</nav>
+
+<h2 class="mb-4">Manage Members - {{ project.name }}</h2>
+
+<div class="row">
+    <!-- Current Members -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">Current Members</div>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong>{{ project.owner.username }}</strong>
+                        <span class="text-muted">{{ project.owner.email }}</span>
+                    </div>
+                    <span class="badge bg-primary">Owner</span>
+                </li>
+                {% for member in project.members.all %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong>{{ member.username }}</strong>
+                        <span class="text-muted">{{ member.email }}</span>
+                    </div>
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="remove">
+                        <input type="hidden" name="user_id" value="{{ member.pk }}">
+                        <button type="submit" class="btn btn-outline-danger btn-sm">Remove</button>
+                    </form>
+                </li>
+                {% empty %}
+                <li class="list-group-item text-muted">No members yet.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <!-- Add Members -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">Add Member</div>
+            {% if available_users %}
+            <ul class="list-group list-group-flush">
+                {% for u in available_users %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong>{{ u.username }}</strong>
+                        <span class="text-muted">{{ u.email }}</span>
+                    </div>
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="add">
+                        <input type="hidden" name="user_id" value="{{ u.pk }}">
+                        <button type="submit" class="btn btn-outline-success btn-sm">Add</button>
+                    </form>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <div class="card-body text-muted">No more users available to add.</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<a href="{% url 'project_detail' project.pk %}" class="btn btn-secondary">Back to Board</a>
+{% endblock %}

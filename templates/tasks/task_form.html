@@ -16,6 +16,7 @@
                         <button type="submit" class="btn btn-primary">Save Task</button>
                         {% if object %}
                         <a href="{% url 'project_detail' object.project.pk %}" class="btn btn-secondary">Cancel</a>
+                        <a href="{% url 'task_delete' object.pk %}" class="btn btn-outline-danger">Delete</a>
                         {% else %}
                         <!-- We need to pass project id context if we want to cancel back to project -->
                         <button type="button" class="btn btn-secondary" onclick="history.back()">Cancel</button>
